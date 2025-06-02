@@ -1,5 +1,3 @@
-# === Flask Backend for Attendance + Certificate Upload (PostgreSQL + Supabase) ===
-
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -13,25 +11,24 @@ app = Flask(__name__)
 CORS(app)
 
 # === Config ===
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://your_user:your_password@your_host:5432/your_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://certification_db_user:MATgBqLZPkxcgsXKF29Eesc5czYrJDAg@dpg-d0uqlih5pdvs73a9g7tg-a.oregon-postgres.render.com/certification_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 # === Supabase Config ===
-SUPABASE_URL = 'https://your-project.supabase.co'
-SUPABASE_KEY = 'your-supabase-service-role-key'
+SUPABASE_URL = 'https://fhnxhnhbpjkedbuptzd.supabase.co'
+SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZobnhobmJocGprZWRidWZwdHpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODg3MjkyNiwiZXhwIjoyMDY0NDQ4OTI2fQ.RIKA8_QcegoSAN46Rt_2L565uwxM3CIF7RHKDmXBDF4'
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # === Models ===
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(50), nullable=False)  # cleaner, executive, auditor
-    assigned_branches = db.Column(db.Text)  # comma-separated list
+    assigned_branches = db.Column(db.Text)
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +48,6 @@ class CertificateUpload(db.Model):
     upload_time = db.Column(db.DateTime, default=datetime.utcnow)
 
 # === Endpoints ===
-
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -91,14 +87,13 @@ def upload_certificate():
         unique_filename = str(uuid.uuid4()) + "_" + filename
         file_bytes = file.read()
 
-        # Upload to Supabase
         path = f"certificates/{unique_filename}"
-        response = supabase.storage.from_('your-bucket').upload(path, file_bytes, {'content-type': file.mimetype})
+        response = supabase.storage.from_('certificates').upload(path, file_bytes, {'content-type': file.mimetype})
 
-        if response.status_code >= 300:
+        if hasattr(response, 'status_code') and response.status_code >= 300:
             return jsonify({"error": "Failed to upload to Supabase"}), 500
 
-        public_url = f"{SUPABASE_URL}/storage/v1/object/public/your-bucket/{path}"
+        public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
 
         record = CertificateUpload(
             user_id=user_id,
@@ -139,12 +134,10 @@ def summary():
         "total_attendance_records": attendance_count
     })
 
-# === Init DB ===
 @app.before_first_request
 def create_tables():
     db.create_all()
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
