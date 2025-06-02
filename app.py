@@ -10,7 +10,7 @@ import uuid
 app = Flask(__name__)
 CORS(app)
 
-# === Config ===
+# === Config ===#
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://certification_db_user:MATgBqLZPkxcgsXKF29Eesc5czYrJDAg@dpg-d0uqlih5pdvs73a9g7tg-a.oregon-postgres.render.com/certification_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
