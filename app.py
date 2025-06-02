@@ -138,6 +138,11 @@ def summary():
 with app.app_context():
     db.create_all()
 
+# ✅ Add this health check route just before the app.run block
+@app.route('/')
+def index():
+    return jsonify({"message": "Service is running."})    
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
