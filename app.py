@@ -53,13 +53,19 @@ def login():
     data = request.json
     user = User.query.filter_by(email=data['email'], password=data['password']).first()
     if user:
+        branches = user.assigned_branches.split(',') if user.assigned_branches else []
+        branch_pairs = [
+            f"{branches[i].strip()},{branches[i+1].strip()}"
+            for i in range(0, len(branches) - 1, 2)
+        ]
         return jsonify({
             "id": user.id,
             "name": user.name,
             "role": user.role,
-            "branches": user.assigned_branches.split(',') if user.assigned_branches else []
+            "branches": branch_pairs
         })
     return jsonify({"error": "Invalid credentials"}), 401
+
 
 @app.route('/attendance', methods=['POST'])
 def record_attendance():
