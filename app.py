@@ -127,7 +127,10 @@ def upload_certificate():
                 return jsonify({"error": "Failed to upload to Supabase"}), 500
 
             #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
-            public_url = supabase.storage.from_("certificates").get_public_url(path)
+            #public_url = supabase.storage.from_("certificates").get_public_url(path)
+            SUPABASE_PUBLIC_URL = "https://fhnxhnhbpjkedbufptzd.supabase.co/storage/v1/object/public"
+            public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+
 
 
 
