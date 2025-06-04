@@ -160,6 +160,18 @@ def summary():
         "total_attendance_records": attendance_count
     })
 
+import socket
+
+@app.route('/dns_check')
+def dns_check():
+    try:
+        ip = socket.gethostbyname('fhnxhnhbpjkedbuptzd.supabase.co')
+        return f"DNS resolved to {ip}"
+    except Exception as e:
+        return f"DNS resolution failed: {str(e)}"
+
+
+
 # === Init DB ===
 with app.app_context():
     db.create_all()
