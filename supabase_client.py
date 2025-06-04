@@ -23,18 +23,30 @@
     
 # supabase_client.py
 
-import os
-from dotenv import load_dotenv
-from supabase.client import Client, create_client  # ✅ use correct import for Supabase v2+
+# import os
+# from dotenv import load_dotenv
+# from supabase.client import Client, create_client  # ✅ use correct import for Supabase v2+
 
-load_dotenv()
+# load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# SUPABASE_URL = os.getenv("SUPABASE_URL")
+# SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-assert SUPABASE_URL and SUPABASE_KEY, "❌ Missing SUPABASE_URL or SUPABASE_KEY"
+# assert SUPABASE_URL and SUPABASE_KEY, "❌ Missing SUPABASE_URL or SUPABASE_KEY"
+
+# supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+from supabase import create_client, Client
+
+SUPABASE_URL = "https://gottknpkjqqlmghyilcf.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdHRrbnBranFxbG1naHlpbGNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzAyOTIzOSwiZXhwIjoyMDU4NjA1MjM5fQ.Fq6ya6EpS7yQFn3IbUUsh7LQIImF9soGpCv56VyPp5k"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+print("🔍 Loaded SUPABASE_URL =", SUPABASE_URL)
+print("🔍 Loaded SUPABASE_KEY =", SUPABASE_KEY[:5] + "..." if SUPABASE_KEY else "❌ Missing")
+
 
 
 
