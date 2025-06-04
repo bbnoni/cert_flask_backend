@@ -23,9 +23,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # === Supabase Config ===
-SUPABASE_URL = 'https://fhnxhnhbpjkedbuptzd.supabase.co'
-SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZobnhobmJocGprZWRidWZwdHpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODg3MjkyNiwiZXhwIjoyMDY0NDQ4OTI2fQ.RIKA8_QcegoSAN46Rt_2L565uwxM3CIF7RHKDmXBDF4'
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# SUPABASE_URL = 'https://fhnxhnhbpjkedbuptzd.supabase.co'
+# SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZobnhobmJocGprZWRidWZwdHpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODg3MjkyNiwiZXhwIjoyMDY0NDQ4OTI2fQ.RIKA8_QcegoSAN46Rt_2L565uwxM3CIF7RHKDmXBDF4'
+# supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # === Models ===
 class User(db.Model):
@@ -116,7 +116,10 @@ def upload_certificate():
                 print(f"❌ Upload error: {response}")
                 return jsonify({"error": "Failed to upload to Supabase"}), 500
 
-            public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
+            #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
+            public_url = supabase.storage.from_("certificates").get_public_url(path)
+            
+
 
             # Save to DB
             record = CertificateUpload(
