@@ -6,6 +6,8 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 import uuid
+from supabase_client import supabase
+
 
 app = Flask(__name__)
 CORS(app)
