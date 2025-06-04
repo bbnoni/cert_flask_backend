@@ -81,25 +81,39 @@ def record_attendance():
 
 @app.route('/upload_certificate', methods=['POST'])
 def upload_certificate():
-    user_id = request.form['user_id']
-    file_type = request.form['file_type']
-    bank = request.form['bank']
-    branch = request.form['branch']
-    month = request.form['month']
-    file = request.files['file']
+    try:
+        print("📥 Upload route triggered")
 
-    if file:
+        user_id = request.form['user_id']
+        file_type = request.form['file_type']
+        bank = request.form['bank']
+        branch = request.form['branch']
+        month = request.form['month']
+        file = request.files.get('file')
+
+        print(f"📦 user_id={user_id}, file_type={file_type}, bank={bank}, branch={branch}, month={month}")
+        if not file:
+            print("❌ No file received")
+            return jsonify({"error": "File missing"}), 400
+
         filename = secure_filename(file.filename)
         unique_filename = str(uuid.uuid4()) + "_" + filename
-        file_bytes = file.read()
+        print(f"📁 Original file: {filename} -> {unique_filename}")
 
+        file_bytes = file.read()
         path = f"certificates/{unique_filename}"
-        response = supabase.storage.from_('certificates').upload(path, file_bytes, {'content-type': file.mimetype})
+        print(f"🚀 Uploading to Supabase path: {path}")
+
+        response = supabase.storage.from_('certificates').upload(
+            path, file_bytes, {'content-type': file.mimetype}
+        )
 
         if hasattr(response, 'status_code') and response.status_code >= 300:
+            print(f"❌ Supabase error: {response}")
             return jsonify({"error": "Failed to upload to Supabase"}), 500
 
         public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
+        print(f"✅ File uploaded. Public URL: {public_url}")
 
         record = CertificateUpload(
             user_id=user_id,
@@ -111,8 +125,13 @@ def upload_certificate():
         )
         db.session.add(record)
         db.session.commit()
+        print("✅ Upload saved to DB")
         return jsonify({"message": "File uploaded", "url": public_url})
-    return jsonify({"error": "File missing"}), 400
+
+    except Exception as e:
+        print(f"🔥 Exception during upload: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
 
 @app.route('/certificates', methods=['GET'])
 def get_certificates():
