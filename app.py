@@ -128,8 +128,10 @@ def upload_certificate():
 
             #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
             #public_url = supabase.storage.from_("certificates").get_public_url(path)
-            SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
-            public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+            #SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
+            #public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+            public_url = supabase.storage.from_("certificates").get_public_url(path)
+
 
 
 
