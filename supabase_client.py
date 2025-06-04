@@ -37,26 +37,26 @@
 # supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-# from supabase import create_client, Client
-
-# SUPABASE_URL = "https://gottknpkjqqlmghyilcf.supabase.co"
-# SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdHRrbnBranFxbG1naHlpbGNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzAyOTIzOSwiZXhwIjoyMDU4NjA1MjM5fQ.Fq6ya6EpS7yQFn3IbUUsh7LQIImF9soGpCv56VyPp5k"
-
-# supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# print("🔍 Loaded SUPABASE_URL =", SUPABASE_URL)
-# print("🔍 Loaded SUPABASE_KEY =", SUPABASE_KEY[:5] + "..." if SUPABASE_KEY else "❌ Missing")
-
-
-import os
-from dotenv import load_dotenv
 from supabase import create_client, Client
 
-load_dotenv()
+SUPABASE_URL = "https://gottknpkjqqlmghyilcf.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdHRrbnBranFxbG1naHlpbGNmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzAyOTIzOSwiZXhwIjoyMDU4NjA1MjM5fQ.Fq6ya6EpS7yQFn3IbUUsh7LQIImF9soGpCv56VyPp5k"
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+print("🔍 Loaded SUPABASE_URL =", SUPABASE_URL)
+print("🔍 Loaded SUPABASE_KEY =", SUPABASE_KEY[:5] + "..." if SUPABASE_KEY else "❌ Missing")
+
+
+# import os
+# from dotenv import load_dotenv
+# from supabase import create_client, Client
+
+# load_dotenv()
+
+# SUPABASE_URL = os.getenv("SUPABASE_URL")
+# SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 
