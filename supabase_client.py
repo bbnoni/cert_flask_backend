@@ -7,7 +7,9 @@
 # supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 import os
-from supabase import create_client
+#from supabase import create_client
+#from supabase import create_client
+from supabase_client import supabase
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
@@ -15,7 +17,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = None
 
 if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    supabase = supabase(SUPABASE_URL, SUPABASE_KEY)
 
 
 
