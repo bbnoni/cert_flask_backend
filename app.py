@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from supabase import create_client, Client
+#from supabase import create_client, Client
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -118,7 +118,7 @@ def upload_certificate():
 
             #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
             public_url = supabase.storage.from_("certificates").get_public_url(path)
-            
+
 
 
             # Save to DB
