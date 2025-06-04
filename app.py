@@ -206,6 +206,34 @@ def audit_files():
     ]
     return jsonify(result)
 
+@app.route('/audit_summary', methods=['GET'])
+def audit_summary():
+    from sqlalchemy import func
+
+    month = request.args.get('month') or datetime.utcnow().strftime('%B')
+
+    results = (
+        db.session.query(
+            User.name,
+            CertificateUpload.month,
+            CertificateUpload.file_type,
+            func.count(CertificateUpload.id).label("count")
+        )
+        .join(User, User.id == CertificateUpload.user_id)
+        .filter(CertificateUpload.month == month)
+        .group_by(User.name, CertificateUpload.month, CertificateUpload.file_type)
+        .all()
+    )
+
+    summary = {}
+    for name, month, file_type, count in results:
+        if name not in summary:
+            summary[name] = {"month": month, "JCC": 0, "DCC": 0, "JSDN": 0}
+        summary[name][file_type] = count
+
+    # Convert to list for JSON response
+    response = [{"user": k, **v} for k, v in summary.items()]
+    return jsonify(response)
 
 
 import socket
