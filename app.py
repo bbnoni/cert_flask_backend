@@ -7,6 +7,8 @@ from datetime import datetime
 import os
 import uuid
 from supabase_client import supabase
+from datetime import datetime
+
 
 
 
@@ -183,6 +185,28 @@ def summary():
         "total_certificates": cert_count,
         "total_attendance_records": attendance_count
     })
+
+
+
+@app.route('/audit_files', methods=['GET'])
+def audit_files():
+    # Get current month or passed ?month=June
+    month = request.args.get('month') or datetime.utcnow().strftime('%B')
+
+    uploads = CertificateUpload.query.filter_by(month=month).all()
+    result = [
+        {
+            'bank': upload.bank,
+            'branch': upload.branch,
+            'file_type': upload.file_type,
+            'file_url': upload.file_url,
+            'uploaded_at': upload.upload_time.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        for upload in uploads
+    ]
+    return jsonify(result)
+
+
 
 import socket
 
