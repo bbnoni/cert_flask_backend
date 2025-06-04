@@ -9,6 +9,10 @@ import uuid
 from supabase_client import supabase
 
 
+
+
+
+
 app = Flask(__name__)
 CORS(app)
 
