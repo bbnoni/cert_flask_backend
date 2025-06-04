@@ -89,6 +89,16 @@ def record_attendance():
 def upload_certificate():
     try:
         print("📥 Upload route triggered")
+
+        # ✅ DNS resolution test here (right at the start)
+        import socket
+        try:
+            ip = socket.gethostbyname("fhnxhnhbpjkedbuptzd.supabase.co")
+            print(f"🌐 DNS resolved: fhnxhnhbpjkedbuptzd.supabase.co -> {ip}")
+        except Exception as dns_err:
+            print(f"❌ DNS resolution failed: {dns_err}")
+            return jsonify({"error": "DNS resolution failed"}), 500
+        
         user_id = request.form['user_id']
         file_type = request.form['file_type']
         bank = request.form['bank']
@@ -178,6 +188,24 @@ def dns_check():
         return f"DNS resolved to {ip}"
     except Exception as e:
         return f"DNS resolution failed: {str(e)}"
+
+
+
+@app.route('/test_upload')
+def test_upload():
+    try:
+        content = b"Hello Supabase"
+        path = "certificates/test_upload.txt"
+        res = supabase.storage.from_("certificates").upload(path, content, {"content-type": "text/plain"})
+
+        if hasattr(res, "status_code") and res.status_code >= 300:
+            return jsonify({"error": "Upload failed", "response": str(res)})
+
+        url = supabase.storage.from_("certificates").get_public_url(path)
+        return jsonify({"message": "Test upload successful", "url": url})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 
