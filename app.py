@@ -93,8 +93,8 @@ def upload_certificate():
         # ✅ DNS resolution test here (right at the start)
         import socket
         try:
-            ip = socket.gethostbyname("fhnxhnhbpjkedbuptzd.supabase.co")
-            print(f"🌐 DNS resolved: fhnxhnhbpjkedbuptzd.supabase.co -> {ip}")
+            ip = socket.gethostbyname("gottknpkjqqlmghyilcf.supabase.co")
+            print(f"🌐 DNS resolved: gottknpkjqqlmghyilcf.supabase.co -> {ip}")
         except Exception as dns_err:
             print(f"❌ DNS resolution failed: {dns_err}")
             return jsonify({"error": "DNS resolution failed"}), 500
@@ -128,7 +128,7 @@ def upload_certificate():
 
             #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
             #public_url = supabase.storage.from_("certificates").get_public_url(path)
-            SUPABASE_PUBLIC_URL = "https://fhnxhnhbpjkedbufptzd.supabase.co/storage/v1/object/public"
+            SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
             public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
 
 
@@ -187,10 +187,11 @@ import socket
 @app.route('/dns_check')
 def dns_check():
     try:
-        ip = socket.gethostbyname('fhnxhnhbpjkedbuptzd.supabase.co')
+        ip = socket.gethostbyname('gottknpkjqqlmghyilcf.supabase.co')
         return f"DNS resolved to {ip}"
     except Exception as e:
         return f"DNS resolution failed: {str(e)}"
+
 
 
 
