@@ -212,42 +212,65 @@ def audit_summary():
 
     month = request.args.get('month') or datetime.utcnow().strftime('%B')
 
-    results = (
+    # Step 1: Fetch certificate uploads grouped by user, branch, file_type
+    uploads = (
         db.session.query(
             User.id,
             User.name,
-            CertificateUpload.month,
+            CertificateUpload.bank,
+            CertificateUpload.branch,
             CertificateUpload.file_type,
-            func.count(CertificateUpload.id).label("count")
+            func.count(CertificateUpload.id)
         )
         .join(User, User.id == CertificateUpload.user_id)
         .filter(CertificateUpload.month == month)
-        .group_by(User.id, User.name, CertificateUpload.month, CertificateUpload.file_type)
+        .group_by(User.id, User.name, CertificateUpload.bank, CertificateUpload.branch, CertificateUpload.file_type)
         .all()
     )
 
-    summary = {}
-    for user_id, name, month, file_type, count in results:
-        if user_id not in summary:
-            summary[user_id] = {
-                "user_id": user_id,
-                "user": name,
-                "month": month,
-                "JCC": 0,
-                "DCC": 0,
-                "JSDN": 0
-            }
-        summary[user_id][file_type] = count
+    # Step 2: Organize uploads by user and branch
+    user_branch_uploads = {}
+    for user_id, name, bank, branch, file_type, count in uploads:
+        key = (user_id, f"{bank.strip()},{branch.strip()}")
+        if key not in user_branch_uploads:
+            user_branch_uploads[key] = {"JCC": 0, "DCC": 0, "JSDN": 0}
+        user_branch_uploads[key][file_type] = count
 
-    # Convert to list for JSON response
-    # Add has_missing flag for each user
-    # Add has_missing flag for each user
-    for entry in summary.values():
-        entry["has_missing"] = entry["JCC"] == 0 or entry["DCC"] == 0 or entry["JSDN"] == 0
+    # Step 3: Assemble summary per user
+    user_summary = {}
+    users = User.query.all()
 
-    response = [entry for entry in summary.values()]
-    return jsonify(response)
+    for user in users:
+        key = user.id
+        assigned_branches = user.assigned_branches.split(',') if user.assigned_branches else []
+        branch_pairs = [
+            f"{assigned_branches[i].strip()},{assigned_branches[i+1].strip()}"
+            for i in range(0, len(assigned_branches) - 1, 2)
+        ]
 
+        summary = {
+            "user_id": user.id,
+            "user": user.name,
+            "month": month,
+            "JCC": 0,
+            "DCC": 0,
+            "JSDN": 0,
+            "has_missing": False
+        }
+
+        for pair in branch_pairs:
+            b_upload = user_branch_uploads.get((user.id, pair), {"JCC": 0, "DCC": 0, "JSDN": 0})
+            summary["JCC"] += b_upload["JCC"]
+            summary["DCC"] += b_upload["DCC"]
+            summary["JSDN"] += b_upload["JSDN"]
+
+            # ✅ Mark missing if any branch is incomplete
+            if b_upload["JCC"] == 0 or b_upload["DCC"] == 0 or b_upload["JSDN"] == 0:
+                summary["has_missing"] = True
+
+        user_summary[key] = summary
+
+    return jsonify(list(user_summary.values()))
 
 
 
