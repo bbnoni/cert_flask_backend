@@ -240,8 +240,15 @@ def audit_summary():
         summary[user_id][file_type] = count
 
     # Convert to list for JSON response
+    # Add has_missing flag for each user
+    # Add has_missing flag for each user
+    for entry in summary.values():
+        entry["has_missing"] = entry["JCC"] == 0 or entry["DCC"] == 0 or entry["JSDN"] == 0
+
     response = [entry for entry in summary.values()]
     return jsonify(response)
+
+
 
 
 
