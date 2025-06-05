@@ -143,8 +143,12 @@ def upload_certificate():
             # SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public/certificates"
             # public_url = f"{SUPABASE_PUBLIC_URL}/certificates/{unique_filename}"  # ✅ add 'certificates/' here
 
+            #SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
+            #public_url = f"{SUPABASE_PUBLIC_URL}/certificates/{path}"  # where path = certificates/<uuid_filename>
+
+            # Public URL
             SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
-            public_url = f"{SUPABASE_PUBLIC_URL}/certificates/{path}"  # where path = certificates/<uuid_filename>
+            public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
 
 
 
