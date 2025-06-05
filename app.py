@@ -212,7 +212,11 @@ def audit_summary():
 
     month = request.args.get('month') or datetime.utcnow().strftime('%B')
 
-    # Step 1: Fetch certificate uploads grouped by user, branch, file_type
+    # Step 1: Fetch executive users only
+    executive_users = User.query.filter_by(role='executive').all()
+    user_ids = [u.id for u in executive_users]
+
+    # Step 2: Fetch their certificate uploads
     uploads = (
         db.session.query(
             User.id,
@@ -224,11 +228,12 @@ def audit_summary():
         )
         .join(User, User.id == CertificateUpload.user_id)
         .filter(CertificateUpload.month == month)
+        .filter(User.id.in_(user_ids))
         .group_by(User.id, User.name, CertificateUpload.bank, CertificateUpload.branch, CertificateUpload.file_type)
         .all()
     )
 
-    # Step 2: Organize uploads by user and branch
+    # Step 3: Organize uploads by user and branch
     user_branch_uploads = {}
     for user_id, name, bank, branch, file_type, count in uploads:
         key = (user_id, f"{bank.strip()},{branch.strip()}")
@@ -236,11 +241,9 @@ def audit_summary():
             user_branch_uploads[key] = {"JCC": 0, "DCC": 0, "JSDN": 0}
         user_branch_uploads[key][file_type] = count
 
-    # Step 3: Assemble summary per user
-    user_summary = {}
-    users = User.query.all()
-
-    for user in users:
+    # Step 4: Assemble summary per executive
+    summary = {}
+    for user in executive_users:
         key = user.id
         assigned_branches = user.assigned_branches.split(',') if user.assigned_branches else []
         branch_pairs = [
@@ -248,7 +251,7 @@ def audit_summary():
             for i in range(0, len(assigned_branches) - 1, 2)
         ]
 
-        summary = {
+        summary_entry = {
             "user_id": user.id,
             "user": user.name,
             "month": month,
@@ -260,18 +263,16 @@ def audit_summary():
 
         for pair in branch_pairs:
             b_upload = user_branch_uploads.get((user.id, pair), {"JCC": 0, "DCC": 0, "JSDN": 0})
-            summary["JCC"] += b_upload["JCC"]
-            summary["DCC"] += b_upload["DCC"]
-            summary["JSDN"] += b_upload["JSDN"]
+            summary_entry["JCC"] += b_upload["JCC"]
+            summary_entry["DCC"] += b_upload["DCC"]
+            summary_entry["JSDN"] += b_upload["JSDN"]
 
-            # ✅ Mark missing if any branch is incomplete#
             if b_upload["JCC"] == 0 or b_upload["DCC"] == 0 or b_upload["JSDN"] == 0:
-                summary["has_missing"] = True
+                summary_entry["has_missing"] = True
 
-        user_summary[key] = summary
+        summary[key] = summary_entry
 
-    return jsonify(list(user_summary.values()))
-
+    return jsonify(list(summary.values()))
 
 
 
