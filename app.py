@@ -235,28 +235,30 @@ def audit_summary():
     response = [{"user": k, **v} for k, v in summary.items()]
     return jsonify(response)
 
+
 @app.route('/user_branch_summary', methods=['GET'])
 def user_branch_summary():
     from sqlalchemy import func
 
-    username = request.args.get('user')
+    user_id = request.args.get('user_id')
     month = request.args.get('month')
 
-    if not username or not month:
-        return jsonify({"error": "Missing user or month"}), 400
+    if not user_id or not month:
+        return jsonify({"error": "Missing user_id or month"}), 400
 
-    # Get user first
-    user = User.query.filter_by(name=username).first()
+    # Get user by ID
+    user = User.query.filter_by(id=user_id).first()
     if not user:
         return jsonify([])
 
+    # Get branch pairs
     branches = user.assigned_branches.split(',') if user.assigned_branches else []
     branch_pairs = [
         (branches[i].strip(), branches[i + 1].strip())
         for i in range(0, len(branches) - 1, 2)
     ]
 
-    # Query all uploads by user for that month
+    # Get all uploads for that user and month
     uploads = (
         db.session.query(
             CertificateUpload.bank,
@@ -269,7 +271,7 @@ def user_branch_summary():
         .all()
     )
 
-    # Organize by (bank, branch)
+    # Summarize uploaded files
     summary_map = {}
     for bank, branch, file_type, count in uploads:
         key = f"{bank},{branch}"
@@ -277,13 +279,14 @@ def user_branch_summary():
             summary_map[key] = {"bank": bank, "branch": branch, "JCC": 0, "DCC": 0, "JSDN": 0}
         summary_map[key][file_type] = count
 
-    # Fill in 0s for unuploaded branches
+    # Add remaining assigned branches with zeros if no uploads found
     for bank, branch in branch_pairs:
         key = f"{bank},{branch}"
         if key not in summary_map:
             summary_map[key] = {"bank": bank, "branch": branch, "JCC": 0, "DCC": 0, "JSDN": 0}
 
     return jsonify(list(summary_map.values()))
+
 
 
 
