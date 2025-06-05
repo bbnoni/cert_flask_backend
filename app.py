@@ -214,6 +214,7 @@ def audit_summary():
 
     results = (
         db.session.query(
+            User.id,
             User.name,
             CertificateUpload.month,
             CertificateUpload.file_type,
@@ -221,19 +222,27 @@ def audit_summary():
         )
         .join(User, User.id == CertificateUpload.user_id)
         .filter(CertificateUpload.month == month)
-        .group_by(User.name, CertificateUpload.month, CertificateUpload.file_type)
+        .group_by(User.id, User.name, CertificateUpload.month, CertificateUpload.file_type)
         .all()
     )
 
     summary = {}
-    for name, month, file_type, count in results:
-        if name not in summary:
-            summary[name] = {"month": month, "JCC": 0, "DCC": 0, "JSDN": 0}
-        summary[name][file_type] = count
+    for user_id, name, month, file_type, count in results:
+        if user_id not in summary:
+            summary[user_id] = {
+                "user_id": user_id,
+                "user": name,
+                "month": month,
+                "JCC": 0,
+                "DCC": 0,
+                "JSDN": 0
+            }
+        summary[user_id][file_type] = count
 
     # Convert to list for JSON response
-    response = [{"user": k, **v} for k, v in summary.items()]
+    response = [entry for entry in summary.values()]
     return jsonify(response)
+
 
 
 @app.route('/user_branch_summary', methods=['GET'])
