@@ -115,8 +115,8 @@ def upload_certificate():
             unique_filename = f"{uuid.uuid4()}_{filename}"
             file_bytes = file.read()
 
-            path = f"certificates/{unique_filename}"
-            #path = unique_filename
+            #path = f"certificates/{unique_filename}"
+            path = unique_filename
             print(f"📁 Original file: {filename} -> {unique_filename}")
             print(f"🚀 Uploading to Supabase path: {path}")
 
