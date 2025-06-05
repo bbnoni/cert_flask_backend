@@ -303,33 +303,44 @@ def user_branch_summary():
     ]
 
     # Fetch uploads by user and month
-    uploads = (
-        db.session.query(
-            CertificateUpload.bank,
-            CertificateUpload.branch,
-            CertificateUpload.file_type,
-            func.count(CertificateUpload.id).label("count")
-        )
-        .filter_by(user_id=user.id, month=month)
-        .group_by(CertificateUpload.bank, CertificateUpload.branch, CertificateUpload.file_type)
-        .all()
-    )
+    uploads = CertificateUpload.query.filter_by(user_id=user.id, month=month).all()
 
     # Organize uploads into summary
     summary_map = {}
-    for bank, branch, file_type, count in uploads:
-        key = f"{bank},{branch}"
+    for u in uploads:
+        key = f"{u.bank},{u.branch}"
         if key not in summary_map:
-            summary_map[key] = {"bank": bank, "branch": branch, "JCC": 0, "DCC": 0, "JSDN": 0}
-        summary_map[key][file_type] = count
+            summary_map[key] = {
+                "bank": u.bank,
+                "branch": u.branch,
+                "JCC": 0,
+                "DCC": 0,
+                "JSDN": 0,
+                "JCC_url": None,
+                "DCC_url": None,
+                "JSDN_url": None,
+            }
+
+        summary_map[key][u.file_type] = 1
+        summary_map[key][f"{u.file_type}_url"] = u.file_url
 
     # Fill in unsubmitted branches with zeros
     for bank, branch in branch_pairs:
         key = f"{bank},{branch}"
         if key not in summary_map:
-            summary_map[key] = {"bank": bank, "branch": branch, "JCC": 0, "DCC": 0, "JSDN": 0}
+            summary_map[key] = {
+                "bank": bank,
+                "branch": branch,
+                "JCC": 0,
+                "DCC": 0,
+                "JSDN": 0,
+                "JCC_url": None,
+                "DCC_url": None,
+                "JSDN_url": None,
+            }
 
     return jsonify(list(summary_map.values()))
+
 
 
 
