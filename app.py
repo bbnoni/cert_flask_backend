@@ -149,7 +149,7 @@ def upload_certificate():
             # Public URL
             
             SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
-            public_url = f"https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public/certificates/certificates/{path}"
+            public_url = f"https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public/certificates/{path}"
 
 
 
