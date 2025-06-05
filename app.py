@@ -115,8 +115,8 @@ def upload_certificate():
             unique_filename = f"{uuid.uuid4()}_{filename}"
             file_bytes = file.read()
 
-            #path = f"certificates/{unique_filename}"
-            path = unique_filename
+            path = f"certificates/{unique_filename}"
+            #path = unique_filename
             print(f"📁 Original file: {filename} -> {unique_filename}")
             print(f"🚀 Uploading to Supabase path: {path}")
 
@@ -131,12 +131,17 @@ def upload_certificate():
 
             #public_url = f"{SUPABASE_URL}/storage/v1/object/public/certificates/{path}"
             #public_url = supabase.storage.from_("certificates").get_public_url(path)
+
             #SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public"
             #public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+
             #public_url = supabase.storage.from_("certificates").get_public_url(path)
 
+            #SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public/certificates"
+            #public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+
             SUPABASE_PUBLIC_URL = "https://gottknpkjqqlmghyilcf.supabase.co/storage/v1/object/public/certificates"
-            public_url = f"{SUPABASE_PUBLIC_URL}/{path}"
+            public_url = f"{SUPABASE_PUBLIC_URL}/certificates/{unique_filename}"  # ✅ add 'certificates/' here
 
 
 
