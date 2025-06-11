@@ -419,7 +419,7 @@ def register():
     )
     db.session.add(user)
     db.session.commit()
-    return jsonify({'message': 'Registration successful.'})
+    return jsonify({'message': 'Registration successful.'}), 201
 
 
 @app.route('/allowed_emails', methods=['GET'])
