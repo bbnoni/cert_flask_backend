@@ -36,7 +36,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    #password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(50), nullable=False)  # cleaner, executive, auditor
     assigned_branches = db.Column(db.Text)
 
@@ -60,7 +61,8 @@ class CertificateUpload(db.Model):
 class AllowedEmail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # 'executive' or 'auditor'    
+    role = db.Column(db.String(50), nullable=False)  # 'executive' or 'auditor' 
+    assigned_branches = db.Column(db.Text)   
 
 # === Endpoints ===
 # @app.route('/login', methods=['POST'])
