@@ -8,8 +8,8 @@ import os
 import uuid
 from supabase_client import supabase
 from datetime import datetime
-
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_migrate import Migrate
 
 
 
@@ -23,6 +23,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://certification_db_user:MATg
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+migrate = Migrate(app, db)
 
 # === Supabase Config ===
 # SUPABASE_URL = 'https://fhnxhnhbpjkedbuptzd.supabase.co'
@@ -55,12 +57,36 @@ class CertificateUpload(db.Model):
     file_url = db.Column(db.String(300))
     upload_time = db.Column(db.DateTime, default=datetime.utcnow)
 
+class AllowedEmail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    role = db.Column(db.String(50), nullable=False)  # 'executive' or 'auditor'    
+
 # === Endpoints ===
+# @app.route('/login', methods=['POST'])
+# def login():
+#     data = request.json
+#     user = User.query.filter_by(email=data['email'], password=data['password']).first()
+#     if user:
+#         branches = user.assigned_branches.split(',') if user.assigned_branches else []
+#         branch_pairs = [
+#             f"{branches[i].strip()},{branches[i+1].strip()}"
+#             for i in range(0, len(branches) - 1, 2)
+#         ]
+#         return jsonify({
+#             "id": user.id,
+#             "name": user.name,
+#             "role": user.role,
+#             "branches": branch_pairs
+#         })
+#     return jsonify({"error": "Invalid credentials"}), 401
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
-    user = User.query.filter_by(email=data['email'], password=data['password']).first()
-    if user:
+    user = User.query.filter_by(email=data['email']).first()
+    if user and check_password_hash(user.password, data['password']):
         branches = user.assigned_branches.split(',') if user.assigned_branches else []
         branch_pairs = [
             f"{branches[i].strip()},{branches[i+1].strip()}"
@@ -362,9 +388,44 @@ def user_branch_summary():
     return jsonify(list(summary_map.values()))
 
 
+@app.route('/check_email', methods=['POST'])
+def check_email():
+    data = request.json
+    email = data.get('email', '').lower()
+    allowed = AllowedEmail.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
+    return jsonify({
+        'exists': user is not None,
+        'allowed': allowed is not None,
+        'role': allowed.role if allowed else None
+    })
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    email = data.get('email', '').lower()
+    name = data.get('name')
+    password = data.get('password')
+    allowed = AllowedEmail.query.filter_by(email=email).first()
+    if not allowed:
+        return jsonify({'error': 'This email is not authorized to sign up.'}), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'User already exists.'}), 400
+    user = User(
+        email=email,
+        name=name,
+        password=generate_password_hash(password),
+        role=allowed.role
+    )
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'message': 'Registration successful.'})
 
 
-
+@app.route('/allowed_emails', methods=['GET'])
+def allowed_emails():
+    emails = AllowedEmail.query.all()
+    return jsonify([e.email for e in emails])
 
 
 import socket
