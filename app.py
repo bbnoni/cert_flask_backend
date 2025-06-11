@@ -415,7 +415,8 @@ def register():
         email=email,
         name=name,
         password=generate_password_hash(password),
-        role=allowed.role
+        role=allowed.role,
+        assigned_branches=allowed.assigned_branches  # <-- copy from AllowedEmail
     )
     db.session.add(user)
     db.session.commit()
